@@ -4,6 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import org.near.borshj.BinaryWriter;
+import org.near.borshj.BorshReader;
 
-public class BinaryWriterTests {}
+public class BorshReaderTests {}
