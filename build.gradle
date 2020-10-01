@@ -1,0 +1,32 @@
+apply plugin: 'java'
+
+jar {
+  archiveBaseName = 'borshj'
+  archiveVersion  = rootProject.file('VERSION').text.trim()
+  manifest {}
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+test {
+  useJUnitPlatform()
+}
+
+repositories {
+  mavenCentral()
+  google()
+}
+
+dependencies {
+  // See: https://developer.android.com/jetpack/androidx/releases/annotation
+  // See: https://mvnrepository.com/artifact/androidx.annotation/annotation
+  compileOnly 'androidx.annotation:annotation:1.1.0'
+
+  // See: https://github.com/junit-team/junit5/releases
+  // See: https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}

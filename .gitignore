@@ -9,3 +9,14 @@
 
 # Pandoc outputs
 *.html
+
+# Gradle directories
+.gradle/
+build/
+
+# VS Code artifacts
+.classpath
+.project
+.settings/
+.vscode/
+bin/
