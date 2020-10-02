@@ -2,19 +2,31 @@
 
 package org.near.borshj;
 
+import androidx.annotation.NonNull;
+import java.io.Closeable;
+import java.io.Flushable;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
 
-import androidx.annotation.NonNull;
-
-public class BorshWriter {
+public class BorshWriter implements Closeable, Flushable {
   private final OutputStream stream;
 
   public BorshWriter(final @NonNull OutputStream stream) {
     this.stream = stream;
   }
 
-  public void writeU8(final byte value) {
+  @Override
+  public void close() throws IOException {
+    this.stream.close();
+  }
+
+  @Override
+  public void flush() throws IOException {
+    this.stream.flush();
+  }
+
+  public void writeU8(final int value) {
     // TODO
   }
 

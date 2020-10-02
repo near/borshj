@@ -2,10 +2,9 @@
 
 package org.near.borshj;
 
+import androidx.annotation.NonNull;
 import java.io.InputStream;
 import java.math.BigInteger;
-
-import androidx.annotation.NonNull;
 
 public class BorshReader {
   private final InputStream stream;
