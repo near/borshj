@@ -7,6 +7,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.NonNull;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.math.BigInteger;
 import java.util.Arrays;
 
@@ -70,6 +71,13 @@ public class BorshBuffer {
     for (int i = 0; i < 16 - bytes.length; i++) {
       this.buffer.put((byte)0);
     }
+    return this;
+  }
+
+  public @NonNull BorshBuffer writeString(final String string) {
+    final byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
+    this.writeU32(bytes.length);
+    this.buffer.put(bytes);
     return this;
   }
 }

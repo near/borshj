@@ -54,4 +54,13 @@ public class BorshBufferTests {
     assertEquals(expected.length, actual.length);
     assertArrayEquals(expected, actual);
   }
+
+  @Test
+  void writeString() {
+    buffer.writeString("Borsh");
+    final byte[] expected = new byte[] {5, 0, 0, 0, 'B', 'o', 'r', 's', 'h'};
+    final byte[] actual = buffer.toByteArray();
+    assertEquals(expected.length, actual.length);
+    assertArrayEquals(expected, actual);
+  }
 }
