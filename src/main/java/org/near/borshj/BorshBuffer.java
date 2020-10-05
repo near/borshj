@@ -27,11 +27,43 @@ public class BorshBuffer {
     return new BorshBuffer(ByteBuffer.allocateDirect(capacity));
   }
 
+  public static @NonNull BorshBuffer wrap(final byte[] array) {
+    return new BorshBuffer(ByteBuffer.wrap(array));
+  }
+
   public @NonNull byte[] toByteArray() {
     assert(this.buffer.hasArray());
     final int arrayOffset = this.buffer.arrayOffset();
     return Arrays.copyOfRange(this.buffer.array(),
       arrayOffset, arrayOffset + this.buffer.position());
+  }
+
+  public byte readU8() {
+    return this.buffer.get();
+  }
+
+  public short readU16() {
+    return this.buffer.getShort();
+  }
+
+  public int readU32() {
+    return this.buffer.getInt();
+  }
+
+  public long readU64() {
+    return this.buffer.getLong();
+  }
+
+  public @NonNull BigInteger readU128() {
+    final byte[] bytes = new byte[16];
+    this.buffer.get(bytes);
+    for (int i = 0; i < 8; i++) {
+      final byte a = bytes[i];
+      final byte b = bytes[15 - i];
+      bytes[i] = b;
+      bytes[15 - i] = a;
+    }
+    return new BigInteger(bytes);
   }
 
   public @NonNull BorshBuffer writeU8(final int value) {
@@ -40,6 +72,15 @@ public class BorshBuffer {
 
   public @NonNull BorshBuffer writeU8(final byte value) {
     this.buffer.put(value);
+    return this;
+  }
+
+  public @NonNull BorshBuffer writeU16(final int value) {
+    return this.writeU16((short)value);
+  }
+
+  public @NonNull BorshBuffer writeU16(final short value) {
+    this.buffer.putShort(value);
     return this;
   }
 
