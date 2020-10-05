@@ -50,6 +50,13 @@ public class BorshBufferTests {
   }
 
   @Test
+  void readString() {
+    final byte[] input = new byte[] {5, 0, 0, 0, 'B', 'o', 'r', 's', 'h'};
+    buffer = BorshBuffer.wrap(input);
+    assertEquals("Borsh", buffer.readString());
+  }
+
+  @Test
   void writeU8() {
     buffer.writeU8(0x42);
     final byte[] expected = new byte[] {0x42};

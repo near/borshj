@@ -66,6 +66,13 @@ public class BorshBuffer {
     return new BigInteger(bytes);
   }
 
+  public @NonNull String readString() {
+    final int length = readU32();
+    final byte[] bytes = new byte[length];
+    this.buffer.get(bytes);
+    return new String(bytes, StandardCharsets.UTF_8);
+  }
+
   public @NonNull BorshBuffer writeU8(final int value) {
     return this.writeU8((byte)value);
   }
