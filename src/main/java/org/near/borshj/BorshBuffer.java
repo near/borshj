@@ -5,10 +5,10 @@ package org.near.borshj;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.math.BigInteger;
 import java.util.Arrays;
 
 public class BorshBuffer {
@@ -78,6 +78,16 @@ public class BorshBuffer {
     final byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
     this.writeU32(bytes.length);
     this.buffer.put(bytes);
+    return this;
+  }
+
+  public @NonNull BorshBuffer writeFixedArray(final @NonNull byte[] array) {
+    this.buffer.put(array);
+    return this;
+  }
+
+  public @NonNull BorshBuffer writeArray(final @NonNull Object[] array) {
+    // TODO
     return this;
   }
 }

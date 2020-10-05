@@ -63,4 +63,18 @@ public class BorshBufferTests {
     assertEquals(expected.length, actual.length);
     assertArrayEquals(expected, actual);
   }
+
+  @Test
+  void writeFixedArray() {
+    buffer.writeFixedArray(new byte[]{1, 2, 3, 4, 5});
+    final byte[] expected = new byte[]{1, 2, 3, 4, 5};
+    final byte[] actual = buffer.toByteArray();
+    assertEquals(expected.length, actual.length);
+    assertArrayEquals(expected, actual);
+  }
+
+  @Test
+  void writeArray() {
+    // TODO
+  }
 }
