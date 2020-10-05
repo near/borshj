@@ -73,11 +73,11 @@ public class BorshBufferTests {
     final byte[] input = new byte[]{1, 2, 3, 4, 5};
     buffer = BorshBuffer.wrap(input);
     assertEquals(0, buffer.readFixedArray(0).length);
-    buffer = BorshBuffer.wrap(input);
+    buffer.reset();
     assertEquals(1, buffer.readFixedArray(1).length);
-    buffer = BorshBuffer.wrap(input);
+    buffer.reset();
     assertEquals(5, buffer.readFixedArray(5).length);
-    buffer = BorshBuffer.wrap(input);
+    buffer.reset();
     assertArrayEquals(input, buffer.readFixedArray(5));
   }
 

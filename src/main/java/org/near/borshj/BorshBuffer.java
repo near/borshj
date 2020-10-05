@@ -17,6 +17,7 @@ public class BorshBuffer {
   protected BorshBuffer(final @NonNull ByteBuffer buffer) {
     this.buffer = requireNonNull(buffer);
     this.buffer.order(ByteOrder.LITTLE_ENDIAN);
+    this.buffer.mark();
   }
 
   public static @NonNull BorshBuffer allocate(final int capacity) {
@@ -36,6 +37,15 @@ public class BorshBuffer {
     final int arrayOffset = this.buffer.arrayOffset();
     return Arrays.copyOfRange(this.buffer.array(),
       arrayOffset, arrayOffset + this.buffer.position());
+  }
+
+  public int capacity() {
+    return this.buffer.capacity();
+  }
+
+  public @NonNull BorshBuffer reset() {
+    this.buffer.reset();
+    return this;
   }
 
   public byte readU8() {
@@ -75,7 +85,7 @@ public class BorshBuffer {
   }
 
   public @NonNull String readString() {
-    final int length = readU32();
+    final int length = this.readU32();
     final byte[] bytes = new byte[length];
     this.buffer.get(bytes);
     return new String(bytes, StandardCharsets.UTF_8);
@@ -168,5 +178,10 @@ public class BorshBuffer {
   public @NonNull BorshBuffer writeArray(final @NonNull Object[] array) {
     // TODO
     return this;
+  }
+
+  protected byte[] array() {
+    assert(this.buffer.hasArray());
+    return this.buffer.array();
   }
 }
