@@ -50,6 +50,18 @@ public class BorshBufferTests {
   }
 
   @Test
+  void readF32() {
+    assertEquals(0.0f, BorshBuffer.wrap(new byte[] {0, 0, 0, 0}).readF32());
+    assertEquals(1.0f, BorshBuffer.wrap(new byte[] {0, 0, (byte)0x80, (byte)0x3f}).readF32());
+  }
+
+  @Test
+  void readF64() {
+    assertEquals(0.0, BorshBuffer.wrap(new byte[] {0, 0, 0, 0, 0, 0, 0, 0}).readF64());
+    assertEquals(1.0, BorshBuffer.wrap(new byte[] {0, 0, 0, 0, 0, 0, (byte)0xf0, (byte)0x3f}).readF64());
+  }
+
+  @Test
   void readString() {
     final byte[] input = new byte[] {5, 0, 0, 0, 'B', 'o', 'r', 's', 'h'};
     buffer = BorshBuffer.wrap(input);
@@ -70,60 +82,75 @@ public class BorshBufferTests {
   }
 
   @Test
+  void readArray() {
+    // TODO
+  }
+
+  @Test
   void writeU8() {
-    buffer.writeU8(0x42);
+    final byte[] actual = buffer.writeU8(0x42).toByteArray();
     final byte[] expected = new byte[] {0x42};
-    final byte[] actual = buffer.toByteArray();
     assertEquals(expected.length, actual.length);
     assertArrayEquals(expected, actual);
   }
 
   @Test
   void writeU16() {
-    buffer.writeU16(0x0011);
+    final byte[] actual = buffer.writeU16(0x0011).toByteArray();
     final byte[] expected = new byte[] {0x11, 0x00};
-    final byte[] actual = buffer.toByteArray();
     assertEquals(expected.length, actual.length);
     assertArrayEquals(expected, actual);
   }
 
   @Test
   void writeU32() {
-    buffer.writeU32(0x00112233);
+    final byte[] actual = buffer.writeU32(0x00112233).toByteArray();
     final byte[] expected = new byte[] {0x33, 0x22, 0x11, 0x00};
-    final byte[] actual = buffer.toByteArray();
     assertEquals(expected.length, actual.length);
     assertArrayEquals(expected, actual);
   }
 
   @Test
   void writeU64() {
-    buffer.writeU64(0x0011223344556677L);
+    final byte[] actual = buffer.writeU64(0x0011223344556677L).toByteArray();
     final byte[] expected = new byte[] {
       0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00,
     };
-    final byte[] actual = buffer.toByteArray();
     assertEquals(expected.length, actual.length);
     assertArrayEquals(expected, actual);
   }
 
   @Test
   void writeU128() {
-    buffer.writeU128(0x0011223344556677L);
+    final byte[] actual = buffer.writeU128(0x0011223344556677L).toByteArray();
     final byte[] expected = new byte[] {
       0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     };
-    final byte[] actual = buffer.toByteArray();
+    assertEquals(expected.length, actual.length);
+    assertArrayEquals(expected, actual);
+  }
+
+  @Test
+  void writeF32() {
+    final byte[] actual = buffer.writeF32(1.0f).toByteArray();
+    final byte[] expected = new byte[] {0, 0, (byte)0x80, (byte)0x3f};
+    assertEquals(expected.length, actual.length);
+    assertArrayEquals(expected, actual);
+  }
+
+  @Test
+  void writeF64() {
+    final byte[] actual = buffer.writeF64(1.0).toByteArray();
+    final byte[] expected = new byte[] {0, 0, 0, 0, 0, 0, (byte)0xf0, (byte)0x3f};
     assertEquals(expected.length, actual.length);
     assertArrayEquals(expected, actual);
   }
 
   @Test
   void writeString() {
-    buffer.writeString("Borsh");
+    final byte[] actual = buffer.writeString("Borsh").toByteArray();
     final byte[] expected = new byte[] {5, 0, 0, 0, 'B', 'o', 'r', 's', 'h'};
-    final byte[] actual = buffer.toByteArray();
     assertEquals(expected.length, actual.length);
     assertArrayEquals(expected, actual);
   }
@@ -140,5 +167,17 @@ public class BorshBufferTests {
   @Test
   void writeArray() {
     // TODO
+  }
+
+  @Test
+  void testF32() {
+    final float value = 3.1415f;
+    assertEquals(value, BorshBuffer.wrap(buffer.writeF32(value).toByteArray()).readF32());
+  }
+
+  @Test
+  void testF64() {
+    final double value = 3.1415;
+    assertEquals(value, BorshBuffer.wrap(buffer.writeF64(value).toByteArray()).readF64());
   }
 }

@@ -66,6 +66,14 @@ public class BorshBuffer {
     return new BigInteger(bytes);
   }
 
+  public double readF32() {
+    return this.buffer.getFloat();
+  }
+
+  public double readF64() {
+    return this.buffer.getDouble();
+  }
+
   public @NonNull String readString() {
     final int length = readU32();
     final byte[] bytes = new byte[length];
@@ -80,6 +88,10 @@ public class BorshBuffer {
     final byte[] bytes = new byte[length];
     this.buffer.get(bytes);
     return bytes;
+  }
+
+  public @NonNull Object[] readArray() {
+    return null; // TODO
   }
 
   public @NonNull BorshBuffer writeU8(final int value) {
@@ -128,6 +140,16 @@ public class BorshBuffer {
     for (int i = 0; i < 16 - bytes.length; i++) {
       this.buffer.put((byte)0);
     }
+    return this;
+  }
+
+  public @NonNull BorshBuffer writeF32(final float value) {
+    this.buffer.putFloat(value);
+    return this;
+  }
+
+  public @NonNull BorshBuffer writeF64(final double value) {
+    this.buffer.putDouble(value);
     return this;
   }
 
