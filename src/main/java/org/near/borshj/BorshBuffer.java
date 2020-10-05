@@ -73,6 +73,15 @@ public class BorshBuffer {
     return new String(bytes, StandardCharsets.UTF_8);
   }
 
+  public @NonNull byte[] readFixedArray(final int length) {
+    if (length < 0) {
+      throw new IllegalArgumentException();
+    }
+    final byte[] bytes = new byte[length];
+    this.buffer.get(bytes);
+    return bytes;
+  }
+
   public @NonNull BorshBuffer writeU8(final int value) {
     return this.writeU8((byte)value);
   }

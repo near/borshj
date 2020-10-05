@@ -57,6 +57,19 @@ public class BorshBufferTests {
   }
 
   @Test
+  void readFixedArray() {
+    final byte[] input = new byte[]{1, 2, 3, 4, 5};
+    buffer = BorshBuffer.wrap(input);
+    assertEquals(0, buffer.readFixedArray(0).length);
+    buffer = BorshBuffer.wrap(input);
+    assertEquals(1, buffer.readFixedArray(1).length);
+    buffer = BorshBuffer.wrap(input);
+    assertEquals(5, buffer.readFixedArray(5).length);
+    buffer = BorshBuffer.wrap(input);
+    assertArrayEquals(input, buffer.readFixedArray(5));
+  }
+
+  @Test
   void writeU8() {
     buffer.writeU8(0x42);
     final byte[] expected = new byte[] {0x42};
