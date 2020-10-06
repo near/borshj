@@ -76,7 +76,7 @@ public class BorshBuffer {
     return new BigInteger(bytes);
   }
 
-  public double readF32() {
+  public float readF32() {
     return this.buffer.getFloat();
   }
 
