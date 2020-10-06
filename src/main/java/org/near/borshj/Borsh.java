@@ -61,11 +61,11 @@ public final class Borsh {
     }
   }
 
-  public static @NonNull Object deserialize(final @NonNull byte[] bytes, final @NonNull Class klass) {
+  public static @NonNull <T> T deserialize(final @NonNull byte[] bytes, final @NonNull Class klass) {
     return deserialize(BorshBuffer.wrap(requireNonNull(bytes)), klass);
   }
 
-  public static @NonNull Object deserialize(final @NonNull BorshBuffer buffer, final @NonNull Class klass) {
+  public static @NonNull <T> T deserialize(final @NonNull BorshBuffer buffer, final @NonNull Class klass) {
     requireNonNull(buffer);
     requireNonNull(klass);
     try {
@@ -73,7 +73,7 @@ public final class Borsh {
       for (final Field field : klass.getDeclaredFields()) {
         deserializeField(field, object, buffer);
       }
-      return object;
+      return (T)object;
     }
     catch (NoSuchMethodException error) {
       throw new RuntimeException(error);
