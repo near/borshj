@@ -5,11 +5,13 @@ package org.near.borshj;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
+import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Optional;
 
 public class BorshBuffer {
   protected final @NonNull ByteBuffer buffer;
@@ -102,6 +104,57 @@ public class BorshBuffer {
 
   public @NonNull Object[] readArray() {
     return null; // TODO
+  }
+
+  public @NonNull BorshBuffer write(final Object object) {
+    if (object instanceof Byte) {
+      this.writeU8((byte)object);
+    }
+    else if (object instanceof Short) {
+      this.writeU16((short)object);
+    }
+    else if (object instanceof Integer) {
+      this.writeU32((int)object);
+    }
+    else if (object instanceof Long) {
+      this.writeU64((long)object);
+    }
+    else if (object instanceof Float) {
+      this.writeF32((float)object);
+    }
+    else if (object instanceof Double) {
+      this.writeF64((double)object);
+    }
+    else if (object instanceof BigInteger) {
+      this.writeU128((BigInteger)object);
+    }
+    else if (object instanceof String) {
+      this.writeString((String)object);
+    }
+    else if (object instanceof Optional) {
+      final Optional value = (Optional)object;
+      if (value.isPresent()) {
+        this.writeU8(1);
+        this.write(value.get());
+      }
+      else {
+        this.writeU8(0);
+      }
+    }
+    else if (object instanceof Borsh) {
+      try {
+        for (final Field field : object.getClass().getDeclaredFields()) {
+          this.write(field.get(object));
+        }
+      }
+      catch (IllegalAccessException error) {
+        throw new RuntimeException(error);
+      }
+    }
+    else {
+      throw new IllegalArgumentException();
+    }
+    return this;
   }
 
   public @NonNull BorshBuffer writeU8(final int value) {

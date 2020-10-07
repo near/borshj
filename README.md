@@ -60,7 +60,7 @@ The following code examples further below are all predicated on this simple
 data class definition:
 
 ```java
-public class Point2D {
+public class Point2D implements Borsh {
   public float x;
   public float y;
 

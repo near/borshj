@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.near.borshj.Borsh;
 
 public class BorshTests {
-  static public class Point2Di {
+  static public class Point2Di implements Borsh {
     public int x;
     public int y;
 
