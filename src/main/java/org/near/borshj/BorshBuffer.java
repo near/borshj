@@ -209,14 +209,7 @@ public class BorshBuffer {
       this.writeString((String)object);
     }
     else if (object instanceof Optional) {
-      final Optional value = (Optional)object;
-      if (value.isPresent()) {
-        this.writeU8(1);
-        this.write(value.get());
-      }
-      else {
-        this.writeU8(0);
-      }
+      this.writeOptional((Optional)object);
     }
     else if (object instanceof Borsh) {
       try {
@@ -307,6 +300,17 @@ public class BorshBuffer {
 
   public @NonNull BorshBuffer writeArray(final @NonNull Object[] array) {
     // TODO
+    return this;
+  }
+
+  public @NonNull <T> BorshBuffer writeOptional(final @NonNull Optional<T> optional) {
+    if (optional.isPresent()) {
+      this.writeU8(1);
+      this.write(optional.get());
+    }
+    else {
+      this.writeU8(0);
+    }
     return this;
   }
 
