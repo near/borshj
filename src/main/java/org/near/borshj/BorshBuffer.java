@@ -6,6 +6,7 @@ import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -48,6 +49,60 @@ public class BorshBuffer {
   public @NonNull BorshBuffer reset() {
     this.buffer.reset();
     return this;
+  }
+
+  public <T> T read(final @NonNull Class klass) {
+    try {
+      final Object object = klass.getConstructor().newInstance();
+      for (final Field field : klass.getDeclaredFields()) {
+        this.readField(field, object);
+      }
+      return (T)object;
+    }
+    catch (NoSuchMethodException error) {
+      throw new RuntimeException(error);
+    }
+    catch (InstantiationException error) {
+      throw new RuntimeException(error);
+    }
+    catch (IllegalAccessException error) {
+      throw new RuntimeException(error);
+    }
+    catch (InvocationTargetException error) {
+      throw new RuntimeException(error);
+    }
+  }
+
+  protected void readField(final @NonNull Field field, final @NonNull Object object)
+      throws IllegalAccessException {
+    final Class fieldType = field.getType();
+    if (fieldType == byte.class || fieldType == Byte.class) {
+      field.setByte(object, this.readU8());
+    }
+    else if (fieldType == short.class || fieldType == Short.class) {
+      field.setShort(object, this.readU16());
+    }
+    else if (fieldType == int.class || fieldType == Integer.class) {
+      field.setInt(object, this.readU32());
+    }
+    else if (fieldType == long.class || fieldType == Long.class) {
+      field.setLong(object, this.readU64());
+    }
+    else if (fieldType == float.class || fieldType == Float.class) {
+      field.setFloat(object, this.readF32());
+    }
+    else if (fieldType == double.class || fieldType == Double.class) {
+      field.setDouble(object, this.readF64());
+    }
+    else if (fieldType == BigInteger.class) {
+      field.set(object, this.readU128());
+    }
+    else if (fieldType == String.class) {
+      field.set(object, this.readString());
+    }
+    else if (fieldType == Optional.class) {
+      // TODO
+    }
   }
 
   public byte readU8() {
