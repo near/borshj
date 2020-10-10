@@ -2,6 +2,7 @@
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.near.borshj.Borsh;
 
@@ -36,5 +37,11 @@ public class BorshTests {
   void roundtripPoint2Di() {
     final Point2Di pt = new Point2Di(123, 456);
     assertEquals(pt, Borsh.deserialize(Borsh.serialize(pt), Point2Di.class));
+  }
+
+  @Test
+  void writeOptional() {
+    assertArrayEquals(new byte[]{0}, Borsh.serialize(Optional.empty()));
+    assertArrayEquals(new byte[]{1, 42, 0, 0, 0}, Borsh.serialize(Optional.of(42)));
   }
 }

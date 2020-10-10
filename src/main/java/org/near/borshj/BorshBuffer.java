@@ -80,7 +80,7 @@ public class BorshBuffer {
         return (T)this.readString();
       }
       else if (klass == Optional.class) {
-        throw new AssertionError("Optional type has been erased");
+        return (T)this.readOptional();
       }
       else { // TODO: check if implements Borsh
         final Object object = klass.getConstructor().newInstance();
@@ -176,6 +176,14 @@ public class BorshBuffer {
 
   public @NonNull Object[] readArray() {
     return null; // TODO
+  }
+
+  public <T> Optional<T> readOptional() {
+    final boolean isPresent = (this.readU8() != 0);
+    if (!isPresent) {
+      return (Optional<T>)Optional.empty();
+    }
+    throw new AssertionError("Optional type has been erased and cannot be reconstructed");
   }
 
   public <T> Optional<T> readOptional(final @NonNull Class klass) {
