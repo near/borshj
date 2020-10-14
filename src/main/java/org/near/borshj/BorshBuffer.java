@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Optional;
 
-public class BorshBuffer {
+public class BorshBuffer implements BorshInput, BorshOutput {
   protected final @NonNull ByteBuffer buffer;
 
   protected BorshBuffer(final @NonNull ByteBuffer buffer) {
@@ -122,22 +122,27 @@ public class BorshBuffer {
     }
   }
 
+  @Override
   public byte readU8() {
     return this.buffer.get();
   }
 
+  @Override
   public short readU16() {
     return this.buffer.getShort();
   }
 
+  @Override
   public int readU32() {
     return this.buffer.getInt();
   }
 
+  @Override
   public long readU64() {
     return this.buffer.getLong();
   }
 
+  @Override
   public @NonNull BigInteger readU128() {
     final byte[] bytes = new byte[16];
     this.buffer.get(bytes);
@@ -150,14 +155,17 @@ public class BorshBuffer {
     return new BigInteger(bytes);
   }
 
+  @Override
   public float readF32() {
     return this.buffer.getFloat();
   }
 
+  @Override
   public double readF64() {
     return this.buffer.getDouble();
   }
 
+  @Override
   public @NonNull String readString() {
     final int length = this.readU32();
     final byte[] bytes = new byte[length];
@@ -165,6 +173,7 @@ public class BorshBuffer {
     return new String(bytes, StandardCharsets.UTF_8);
   }
 
+  @Override
   public @NonNull byte[] readFixedArray(final int length) {
     if (length < 0) {
       throw new IllegalArgumentException();
@@ -174,11 +183,13 @@ public class BorshBuffer {
     return bytes;
   }
 
+  @Override
   public @NonNull Object[] readArray() {
     return null; // TODO
   }
 
-  public <T> Optional<T> readOptional() {
+  @Override
+  public <T> @NonNull Optional<T> readOptional() {
     final boolean isPresent = (this.readU8() != 0);
     if (!isPresent) {
       return (Optional<T>)Optional.empty();
@@ -186,7 +197,8 @@ public class BorshBuffer {
     throw new AssertionError("Optional type has been erased and cannot be reconstructed");
   }
 
-  public <T> Optional<T> readOptional(final @NonNull Class klass) {
+  @Override
+  public <T> @NonNull Optional<T> readOptional(final @NonNull Class klass) {
     final boolean isPresent = (this.readU8() != 0);
     return isPresent ? Optional.of(this.read(klass)) : Optional.empty();
   }
@@ -235,38 +247,31 @@ public class BorshBuffer {
     return this;
   }
 
-  public @NonNull BorshBuffer writeU8(final int value) {
-    return this.writeU8((byte)value);
-  }
-
+  @Override
   public @NonNull BorshBuffer writeU8(final byte value) {
     this.buffer.put(value);
     return this;
   }
 
-  public @NonNull BorshBuffer writeU16(final int value) {
-    return this.writeU16((short)value);
-  }
-
+  @Override
   public @NonNull BorshBuffer writeU16(final short value) {
     this.buffer.putShort(value);
     return this;
   }
 
+  @Override
   public @NonNull BorshBuffer writeU32(final int value) {
     this.buffer.putInt(value);
     return this;
   }
 
+  @Override
   public @NonNull BorshBuffer writeU64(final long value) {
     this.buffer.putLong(value);
     return this;
   }
 
-  public @NonNull BorshBuffer writeU128(final long value) {
-    return this.writeU128(BigInteger.valueOf(value));
-  }
-
+  @Override
   public @NonNull BorshBuffer writeU128(final @NonNull BigInteger value) {
     if (value.signum() == -1) {
       throw new ArithmeticException("integer underflow");
@@ -284,16 +289,19 @@ public class BorshBuffer {
     return this;
   }
 
+  @Override
   public @NonNull BorshBuffer writeF32(final float value) {
     this.buffer.putFloat(value);
     return this;
   }
 
+  @Override
   public @NonNull BorshBuffer writeF64(final double value) {
     this.buffer.putDouble(value);
     return this;
   }
 
+  @Override
   public @NonNull BorshBuffer writeString(final String string) {
     final byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
     this.writeU32(bytes.length);
@@ -301,16 +309,19 @@ public class BorshBuffer {
     return this;
   }
 
+  @Override
   public @NonNull BorshBuffer writeFixedArray(final @NonNull byte[] array) {
     this.buffer.put(array);
     return this;
   }
 
+  @Override
   public @NonNull BorshBuffer writeArray(final @NonNull Object[] array) {
     // TODO
     return this;
   }
 
+  @Override
   public @NonNull <T> BorshBuffer writeOptional(final @NonNull Optional<T> optional) {
     if (optional.isPresent()) {
       this.writeU8(1);
