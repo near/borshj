@@ -70,11 +70,17 @@ public interface BorshOutput<Self> {
     return this.writeU16((short)value);
   }
 
-  public @NonNull Self writeU16(final short value);
+  default public @NonNull Self writeU16(final short value) {
+    return this.writeBuffer(BorshBuffer.allocate(2).writeU16(value));
+  }
 
-  public @NonNull Self writeU32(final int value);
+  default public @NonNull Self writeU32(final int value) {
+    return this.writeBuffer(BorshBuffer.allocate(4).writeU32(value));
+  }
 
-  public @NonNull Self writeU64(final long value);
+  default public @NonNull Self writeU64(final long value) {
+    return this.writeBuffer(BorshBuffer.allocate(8).writeU64(value));
+  }
 
   default public @NonNull Self writeU128(final long value) {
     return this.writeU128(BigInteger.valueOf(value));
@@ -97,9 +103,13 @@ public interface BorshOutput<Self> {
     return (Self)this;
   }
 
-  public @NonNull Self writeF32(final float value);
+  default public @NonNull Self writeF32(final float value) {
+    return this.writeBuffer(BorshBuffer.allocate(4).writeF32(value));
+  }
 
-  public @NonNull Self writeF64(final double value);
+  default public @NonNull Self writeF64(final double value) {
+    return this.writeBuffer(BorshBuffer.allocate(8).writeF64(value));
+  }
 
   default public @NonNull Self writeString(final @NonNull String string) {
     final byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
@@ -124,6 +134,10 @@ public interface BorshOutput<Self> {
     else {
       return this.writeU8(0);
     }
+  }
+
+  default public @NonNull Self writeBuffer(final @NonNull BorshBuffer buffer) {
+    return this.write(buffer.toByteArray());  // TODO: optimize
   }
 
   public @NonNull Self write(final @NonNull byte[] bytes);
