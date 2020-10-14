@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Optional;
 
-public class BorshBuffer implements BorshInput, BorshOutput {
+public class BorshBuffer implements BorshInput, BorshOutput<BorshBuffer> {
   protected final @NonNull ByteBuffer buffer;
 
   protected BorshBuffer(final @NonNull ByteBuffer buffer) {
@@ -203,56 +203,6 @@ public class BorshBuffer implements BorshInput, BorshOutput {
     return isPresent ? Optional.of(this.read(klass)) : Optional.empty();
   }
 
-  public @NonNull BorshBuffer write(final Object object) {
-    if (object instanceof Byte) {
-      this.writeU8((byte)object);
-    }
-    else if (object instanceof Short) {
-      this.writeU16((short)object);
-    }
-    else if (object instanceof Integer) {
-      this.writeU32((int)object);
-    }
-    else if (object instanceof Long) {
-      this.writeU64((long)object);
-    }
-    else if (object instanceof Float) {
-      this.writeF32((float)object);
-    }
-    else if (object instanceof Double) {
-      this.writeF64((double)object);
-    }
-    else if (object instanceof BigInteger) {
-      this.writeU128((BigInteger)object);
-    }
-    else if (object instanceof String) {
-      this.writeString((String)object);
-    }
-    else if (object instanceof Optional) {
-      this.writeOptional((Optional)object);
-    }
-    else if (object instanceof Borsh) {
-      try {
-        for (final Field field : object.getClass().getDeclaredFields()) {
-          this.write(field.get(object));
-        }
-      }
-      catch (IllegalAccessException error) {
-        throw new RuntimeException(error);
-      }
-    }
-    else {
-      throw new IllegalArgumentException();
-    }
-    return this;
-  }
-
-  @Override
-  public @NonNull BorshBuffer writeU8(final byte value) {
-    this.buffer.put(value);
-    return this;
-  }
-
   @Override
   public @NonNull BorshBuffer writeU16(final short value) {
     this.buffer.putShort(value);
@@ -272,24 +222,6 @@ public class BorshBuffer implements BorshInput, BorshOutput {
   }
 
   @Override
-  public @NonNull BorshBuffer writeU128(final @NonNull BigInteger value) {
-    if (value.signum() == -1) {
-      throw new ArithmeticException("integer underflow");
-    }
-    if (value.bitLength() > 128) {
-      throw new ArithmeticException("integer overflow");
-    }
-    final byte[] bytes = value.toByteArray();
-    for (int i = bytes.length - 1; i >= 0; i--) {
-      this.buffer.put(bytes[i]);
-    }
-    for (int i = 0; i < 16 - bytes.length; i++) {
-      this.buffer.put((byte)0);
-    }
-    return this;
-  }
-
-  @Override
   public @NonNull BorshBuffer writeF32(final float value) {
     this.buffer.putFloat(value);
     return this;
@@ -302,34 +234,14 @@ public class BorshBuffer implements BorshInput, BorshOutput {
   }
 
   @Override
-  public @NonNull BorshBuffer writeString(final String string) {
-    final byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
-    this.writeU32(bytes.length);
+  public @NonNull BorshBuffer write(final @NonNull byte[] bytes) {
     this.buffer.put(bytes);
     return this;
   }
 
   @Override
-  public @NonNull BorshBuffer writeFixedArray(final @NonNull byte[] array) {
-    this.buffer.put(array);
-    return this;
-  }
-
-  @Override
-  public @NonNull BorshBuffer writeArray(final @NonNull Object[] array) {
-    // TODO
-    return this;
-  }
-
-  @Override
-  public @NonNull <T> BorshBuffer writeOptional(final @NonNull Optional<T> optional) {
-    if (optional.isPresent()) {
-      this.writeU8(1);
-      this.write(optional.get());
-    }
-    else {
-      this.writeU8(0);
-    }
+  public @NonNull BorshBuffer write(final byte b) {
+    this.buffer.put(b);
     return this;
   }
 
