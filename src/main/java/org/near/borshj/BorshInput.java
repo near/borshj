@@ -3,31 +3,156 @@
 package org.near.borshj;
 
 import androidx.annotation.NonNull;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 public interface BorshInput {
-  public byte readU8();
+  default public <T> T read(final @NonNull Class klass) {
+    if (klass == Byte.class || klass == byte.class) {
+      return (T)Byte.valueOf(this.readU8());
+    }
+    else if (klass == Short.class || klass == short.class) {
+      return (T)Short.valueOf(this.readU16());
+    }
+    else if (klass == Integer.class || klass == int.class) {
+      return (T)Integer.valueOf(this.readU32());
+    }
+    else if (klass == Long.class || klass == long.class) {
+      return (T)Long.valueOf(this.readU64());
+    }
+    else if (klass == BigInteger.class) {
+      return (T)this.readU128();
+    }
+    else if (klass == Float.class || klass == float.class) {
+      return (T)Float.valueOf(this.readF32());
+    }
+    else if (klass == Double.class || klass == double.class) {
+      return (T)Double.valueOf(this.readF64());
+    }
+    else if (klass == String.class) {
+      return (T)this.readString();
+    }
+    else if (klass == Optional.class) {
+      return (T)this.readOptional();
+    }
+    else if (true) { // TODO: check if implements Borsh
+      return (T)this.readPOJO(klass);
+    }
+    throw new IllegalArgumentException();
+  }
 
-  public short readU16();
+  default public <T> T readPOJO(final @NonNull Class klass) {
+    try {
+      final Object object = klass.getConstructor().newInstance();
+      for (final Field field : klass.getDeclaredFields()) {
+        final Class fieldClass = field.getType();
+        if (fieldClass == Optional.class) {
+          final Type fieldType = field.getGenericType();
+          if (!(fieldType instanceof ParameterizedType)) {
+            throw new AssertionError("unsupported Optional type");
+          }
+          final Type[] optionalArgs = ((ParameterizedType)fieldType).getActualTypeArguments();
+          assert(optionalArgs.length == 1);
+          final Class optionalClass = (Class)optionalArgs[0];
+          field.set(object, this.readOptional(optionalClass));
+        }
+        else {
+          field.set(object, this.read(field.getType()));
+        }
+      }
+      return (T)object;
+    }
+    catch (NoSuchMethodException error) {
+      throw new RuntimeException(error);
+    }
+    catch (InstantiationException error) {
+      throw new RuntimeException(error);
+    }
+    catch (IllegalAccessException error) {
+      throw new RuntimeException(error);
+    }
+    catch (InvocationTargetException error) {
+      throw new RuntimeException(error);
+    }
+  }
 
-  public int readU32();
+  default public byte readU8() {
+    return this.read();
+  }
 
-  public long readU64();
+  default public short readU16() {
+    return BorshBuffer.wrap(this.read(2)).readU16();
+  }
 
-  public @NonNull BigInteger readU128();
+  default public int readU32() {
+    return BorshBuffer.wrap(this.read(4)).readU32();
+  }
 
-  public float readF32();
+  default public long readU64() {
+    return BorshBuffer.wrap(this.read(8)).readU64();
+  }
 
-  public double readF64();
+  default public @NonNull BigInteger readU128() {
+    final byte[] bytes = new byte[16];
+    this.read(bytes);
+    for (int i = 0; i < 8; i++) {
+      final byte a = bytes[i];
+      final byte b = bytes[15 - i];
+      bytes[i] = b;
+      bytes[15 - i] = a;
+    }
+    return new BigInteger(bytes);
+  }
 
-  public @NonNull String readString();
+  default public float readF32() {
+    return BorshBuffer.wrap(this.read(4)).readF32();
+  }
 
-  public @NonNull byte[] readFixedArray(final int length);
+  default public double readF64() {
+    return BorshBuffer.wrap(this.read(8)).readF64();
+  }
 
-  public @NonNull Object[] readArray();
+  default public @NonNull String readString() {
+    final int length = this.readU32();
+    final byte[] bytes = new byte[length];
+    this.read(bytes);
+    return new String(bytes, StandardCharsets.UTF_8);
+  }
 
-  public <T> @NonNull Optional<T> readOptional();
+  default public @NonNull byte[] readFixedArray(final int length) {
+    if (length < 0) {
+      throw new IllegalArgumentException();
+    }
+    final byte[] bytes = new byte[length];
+    this.read(bytes);
+    return bytes;
+  }
 
-  public <T> @NonNull Optional<T> readOptional(final @NonNull Class klass);
+  default public @NonNull Object[] readArray() {
+    return null; // TODO
+  }
+
+  default public <T> @NonNull Optional<T> readOptional() {
+    final boolean isPresent = (this.readU8() != 0);
+    if (!isPresent) {
+      return (Optional<T>)Optional.empty();
+    }
+    throw new AssertionError("Optional type has been erased and cannot be reconstructed");
+  }
+
+  default public <T> @NonNull Optional<T> readOptional(final @NonNull Class klass) {
+    final boolean isPresent = (this.readU8() != 0);
+    return isPresent ? Optional.of(this.read(klass)) : Optional.empty();
+  }
+
+  public byte read();
+
+  public byte[] read(int length);
+
+  public void read(@NonNull byte[] result);
 }
