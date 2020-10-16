@@ -153,7 +153,18 @@ public interface BorshInput {
 
   public byte read();
 
-  public byte[] read(int length);
+  default public byte[] read(final int length) {
+    if (length < 0) {
+      throw new IndexOutOfBoundsException();
+    }
+    final byte[] result = new byte[length];
+    this.read(result);
+    return result;
+  }
 
-  public void read(@NonNull byte[] result);
+  default public void read(final @NonNull byte[] result) {
+    this.read(result, 0, result.length);
+  }
+
+  public void read(@NonNull byte[] result, int offset, int length);
 }

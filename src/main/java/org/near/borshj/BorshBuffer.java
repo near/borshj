@@ -82,15 +82,8 @@ public class BorshBuffer implements BorshInput, BorshOutput<BorshBuffer> {
   }
 
   @Override
-  public byte[] read(final int length) {
-    final byte[] result = new byte[length];
-    this.buffer.get(result);
-    return result;
-  }
-
-  @Override
-  public void read(final @NonNull byte[] result) {
-    this.buffer.get(result);
+  public void read(final @NonNull byte[] result, final int offset, final int length) {
+    this.buffer.get(result, offset, length);
   }
 
   @Override

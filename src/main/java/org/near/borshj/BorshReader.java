@@ -9,16 +9,12 @@ import java.io.Closeable;
 import java.io.EOFException;
 import java.io.InputStream;
 import java.io.IOException;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 
-public class BorshReader implements Closeable {
+public class BorshReader implements BorshInput, Closeable {
   private final InputStream stream;
-  private final BorshBuffer buffer;
 
   public BorshReader(final @NonNull InputStream stream) {
     this.stream = requireNonNull(stream);
-    this.buffer = BorshBuffer.allocate(16);
   }
 
   @Override
@@ -26,7 +22,8 @@ public class BorshReader implements Closeable {
     this.stream.close();
   }
 
-  public byte readU8() {
+  @Override
+  public byte read() {
     try {
       final int result = this.stream.read();
       if (result == -1) {
@@ -39,52 +36,19 @@ public class BorshReader implements Closeable {
     }
   }
 
-  public int readU32() {
-    this.readIntoBuffer(4);
-    return this.buffer.readU32();
-  }
-
-  public long readU64() {
-    this.readIntoBuffer(8);
-    return this.buffer.readU64();
-  }
-
-  public @NonNull BigInteger readU128() {
-    this.readIntoBuffer(16);
-    return this.buffer.readU128();
-  }
-
-  public @NonNull String readString() {
-    final int length = this.readU32();
-    final byte[] bytes = new byte[length];
-    this.readIntoBuffer(bytes, length);
-    return new String(bytes, StandardCharsets.UTF_8);
-  }
-
-  public @NonNull byte[] readFixedArray(final int length) {
-    if (length < 0) {
-      throw new IllegalArgumentException();
+  @Override
+  public void read(final @NonNull byte[] result, final int offset, final int length) {
+    if (offset < 0 || length < 0 || length > result.length - offset) {
+      throw new IndexOutOfBoundsException();
     }
-    final byte[] bytes = new byte[length];
-    this.readIntoBuffer(bytes, length);
-    return bytes;
-  }
-
-  public @NonNull Object[] readArray() {
-    return null; // TODO
-  }
-
-  protected void readIntoBuffer(final int length) {
-    this.buffer.reset();
-    this.readIntoBuffer(this.buffer.array(), length);
-  }
-
-  protected void readIntoBuffer(final @NonNull byte[] buffer, final int length) {
-    assert(length <= buffer.length);
     try {
-      final int bytesRead = this.stream.read(buffer, 0, length);
-      if (bytesRead == -1 || bytesRead < length) {
-        throw new EOFException();
+      int n = 0;
+      while (n < length) {
+        final int count = this.stream.read(result, offset + n, length - n);
+        if (count == -1) {
+          throw new EOFException();
+        }
+        n += count;
       }
     }
     catch (final IOException error) {
