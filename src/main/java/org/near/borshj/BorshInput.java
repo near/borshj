@@ -9,6 +9,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Optional;
 
 public interface BorshInput {
@@ -40,7 +41,7 @@ public interface BorshInput {
     else if (klass == Optional.class) {
       return (T)this.readOptional();
     }
-    else if (true) { // TODO: check if implements Borsh
+    else if (Arrays.stream(klass.getInterfaces()).anyMatch(iface -> iface == Borsh.class)) {
       return (T)this.readPOJO(klass);
     }
     throw new IllegalArgumentException();
