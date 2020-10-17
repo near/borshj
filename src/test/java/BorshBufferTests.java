@@ -3,6 +3,7 @@
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.near.borshj.BorshBuffer;
@@ -157,7 +158,18 @@ public class BorshBufferTests {
 
   @Test
   void writeArray() {
-    // TODO
+    buffer.writeArray(new Byte[]{1, 2, 3});
+    final byte[] expected = new byte[]{3, 0, 0, 0, 1, 2, 3};
+    final byte[] actual = buffer.toByteArray();
+    assertArrayEquals(expected, actual);
+  }
+
+  @Test
+  void writeArrayOfList() {
+    buffer.writeArray(Arrays.asList(new Byte[]{1, 2, 3}));
+    final byte[] expected = new byte[]{3, 0, 0, 0, 1, 2, 3};
+    final byte[] actual = buffer.toByteArray();
+    assertArrayEquals(expected, actual);
   }
 
   @Test

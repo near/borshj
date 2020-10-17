@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 
 public interface BorshOutput<Self> {
@@ -36,6 +37,9 @@ public interface BorshOutput<Self> {
     }
     else if (object instanceof String) {
       return this.writeString((String)object);
+    }
+    else if (object instanceof List) {
+      return (Self)this.writeArray((List)object);
     }
     else if (object instanceof Optional) {
       return (Self)this.writeOptional((Optional)object);
@@ -121,8 +125,19 @@ public interface BorshOutput<Self> {
     return this.write(array);
   }
 
-  default public @NonNull Self writeArray(final @NonNull Object[] array) {
-    // TODO
+  default public @NonNull <T> Self writeArray(final @NonNull T[] array) {
+    this.writeU32(array.length);
+    for (final T element : array) {
+      this.write(element);
+    }
+    return (Self)this;
+  }
+
+  default public @NonNull <T> Self writeArray(final @NonNull List<T> list) {
+    this.writeU32(list.size());
+    for (final T element : list) {
+      this.write(element);
+    }
     return (Self)this;
   }
 
