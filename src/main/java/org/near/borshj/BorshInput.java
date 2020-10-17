@@ -3,6 +3,7 @@
 package org.near.borshj;
 
 import androidx.annotation.NonNull;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -134,8 +135,13 @@ public interface BorshInput {
     return bytes;
   }
 
-  default public @NonNull Object[] readArray() {
-    return null; // TODO
+  default public @NonNull <T> T[] readArray(final @NonNull Class klass) {
+    final int length = this.readU32();
+    final T[] elements = (T[])Array.newInstance(klass, length);
+    for (int i = 0; i < length; i++) {
+      elements[i] = this.read(klass);
+    }
+    return elements;
   }
 
   default public <T> @NonNull Optional<T> readOptional() {

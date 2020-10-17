@@ -84,7 +84,9 @@ public class BorshBufferTests {
 
   @Test
   void readArray() {
-    // TODO
+    final byte[] input = new byte[]{3, 0, 0, 0, 1, 0, 2, 0, 3, 0};
+    buffer = BorshBuffer.wrap(input);
+    assertArrayEquals(new Short[]{1, 2, 3}, buffer.readArray(Short.class));
   }
 
   @Test
@@ -158,16 +160,16 @@ public class BorshBufferTests {
 
   @Test
   void writeArray() {
-    buffer.writeArray(new Byte[]{1, 2, 3});
-    final byte[] expected = new byte[]{3, 0, 0, 0, 1, 2, 3};
+    buffer.writeArray(new Short[]{1, 2, 3});
+    final byte[] expected = new byte[]{3, 0, 0, 0, 1, 0, 2, 0, 3, 0};
     final byte[] actual = buffer.toByteArray();
     assertArrayEquals(expected, actual);
   }
 
   @Test
   void writeArrayOfList() {
-    buffer.writeArray(Arrays.asList(new Byte[]{1, 2, 3}));
-    final byte[] expected = new byte[]{3, 0, 0, 0, 1, 2, 3};
+    buffer.writeArray(Arrays.asList(new Short[]{1, 2, 3}));
+    final byte[] expected = new byte[]{3, 0, 0, 0, 1, 0, 2, 0, 3, 0};
     final byte[] actual = buffer.toByteArray();
     assertArrayEquals(expected, actual);
   }
