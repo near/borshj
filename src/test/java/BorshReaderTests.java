@@ -11,8 +11,19 @@ public class BorshReaderTests {
   private ByteArrayInputStream input;
   private BorshReader reader;
 
-  protected void newReader(final byte[] bytes) {
+  protected BorshReader newReader(final byte[] bytes) {
     input = new ByteArrayInputStream(bytes);
     reader = new BorshReader(input);
+    return reader;
+  }
+
+  @Test
+  void constructWithNull() {
+    assertThrows(NullPointerException.class, () -> new BorshReader(null));
+  }
+
+  @Test
+  void parseInput() {
+    assertEquals("Borsh", newReader(new byte[] {5, 0, 0, 0, 'B', 'o', 'r', 's', 'h'}).readString());
   }
 }
