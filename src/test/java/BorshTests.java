@@ -24,7 +24,7 @@ public class BorshTests {
     }
 
     @Override
-    public boolean equals(Object object) {
+    public boolean equals(final Object object) {
       if (object == null || object.getClass() != this.getClass()) return false;
       final Point2Df other = (Point2Df)object;
       return this.x == other.x && this.y == other.y;
@@ -48,7 +48,7 @@ public class BorshTests {
     }
 
     @Override
-    public boolean equals(Object object) {
+    public boolean equals(final Object object) {
       if (object == null || object.getClass() != this.getClass()) return false;
       final Rect2Df other = (Rect2Df)object;
       return this.topLeft.equals(other.topLeft) && this.bottomRight.equals(other.bottomRight);

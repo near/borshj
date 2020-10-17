@@ -29,4 +29,8 @@ dependencies {
   // See: https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+  // See: https://github.com/cglib/cglib/releases
+  // See: https://mvnrepository.com/artifact/cglib/cglib
+  testImplementation 'cglib:cglib:3.3.0'
 }
