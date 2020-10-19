@@ -4,12 +4,81 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigInteger;
+import java.util.Random;
 import net.sf.cglib.beans.BeanGenerator;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.RepetitionInfo;
 import org.junit.jupiter.api.Test;
 import org.near.borshj.Borsh;
 
 public class FuzzTests {
+  static final int MAX_ITERATIONS = 100;
+  static final int MAX_FIELDS     = 10;
+  static final int MAX_STRING_LEN = 100;
+
+  @Test
+  void testBeanGenerator() throws Exception {
+    final BeanGenerator beanGenerator = new BeanGenerator();
+    beanGenerator.setSuperclass(Bean.class);
+    beanGenerator.addProperty("name", String.class);
+    beanGenerator.addProperty("email", String.class);
+    beanGenerator.addProperty("age", Integer.class);
+    beanGenerator.addProperty("twitter", Boolean.class);
+    final Object bean = beanGenerator.create();
+    bean.getClass().getMethod("setName", String.class).invoke(bean, "J. Random Hacker");
+    bean.getClass().getMethod("setEmail", String.class).invoke(bean, "jhacker@example.org");
+    bean.getClass().getMethod("setAge", Integer.class).invoke(bean, 42);
+    bean.getClass().getMethod("setTwitter", Boolean.class).invoke(bean, true);
+    assertEquals(bean, Borsh.deserialize(Borsh.serialize(bean), bean.getClass()));
+  }
+
+  @RepeatedTest(MAX_ITERATIONS)
+  void testRandomBean(final RepetitionInfo test) throws Exception {
+    final Random random = new Random(test.getCurrentRepetition());
+    final Object bean = newRandomBean(random);
+    assertEquals(bean, Borsh.deserialize(Borsh.serialize(bean), bean.getClass()));
+  }
+
+  private Object newRandomBean(final Random random) throws Exception {
+    final BeanGenerator beanGenerator = new BeanGenerator();
+    beanGenerator.setSuperclass(Bean.class);
+    final int fieldCount = random.nextInt(MAX_FIELDS);
+    final Object[] fieldValues = new Object[fieldCount];
+    for (int i = 0; i < fieldCount; i++) {
+      final String fieldName = String.format("field%d", i);
+      fieldValues[i] = newRandomValue(random);
+      beanGenerator.addProperty(fieldName, fieldValues[i].getClass());
+    }
+    final Object bean = beanGenerator.create();
+    for (int i = 0; i < fieldCount; i++) {
+      final String setterName = String.format("setField%d", i);
+      bean.getClass().getMethod(setterName, fieldValues[i].getClass()).invoke(bean, fieldValues[i]);
+    }
+    System.err.println(bean.toString());
+    return bean;
+  }
+
+  private Object newRandomValue(final Random random) {
+    switch (Math.abs(random.nextInt()) % 9) {
+      case 0: return random.nextBoolean();
+      case 1: return (byte)random.nextInt(Byte.MAX_VALUE);
+      case 2: return (short)random.nextInt(Short.MAX_VALUE);
+      case 3: return random.nextInt();
+      case 4: return random.nextLong();
+      case 5: return BigInteger.valueOf(random.nextLong()).abs();
+      case 6: return random.nextFloat();
+      case 7: return random.nextDouble();
+      case 8:
+        return random.ints('a', 'z' + 1)
+          .limit(random.nextInt(MAX_STRING_LEN))
+          .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+          .toString();
+      default: throw new AssertionError("unreachable");
+    }
+  }
+
   static public class Bean implements Borsh {
     @Override
     public String toString() {
@@ -49,26 +118,5 @@ public class FuzzTests {
         return false;
       }
     }
-  }
-
-  Object newPersonBean() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-    final BeanGenerator beanGenerator = new BeanGenerator();
-    beanGenerator.setSuperclass(Bean.class);
-    beanGenerator.addProperty("name", String.class);
-    beanGenerator.addProperty("email", String.class);
-    beanGenerator.addProperty("age", Integer.class);
-    beanGenerator.addProperty("twitter", Boolean.class);
-    final Object bean = beanGenerator.create();
-    bean.getClass().getMethod("setName", String.class).invoke(bean, "J. Random Hacker");
-    bean.getClass().getMethod("setEmail", String.class).invoke(bean, "jhacker@example.org");
-    bean.getClass().getMethod("setAge", Integer.class).invoke(bean, 42);
-    bean.getClass().getMethod("setTwitter", Boolean.class).invoke(bean, true);
-    return bean;
-  }
-
-  @Test
-  void testBeanGenerator() throws Exception {
-    final Object bean = newPersonBean();
-    assertEquals(bean, Borsh.deserialize(Borsh.serialize(bean), bean.getClass()));
   }
 }
