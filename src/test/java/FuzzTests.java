@@ -14,7 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.near.borshj.Borsh;
 
 public class FuzzTests {
-  static final int MAX_ITERATIONS = 100;
+  static final int MAX_ITERATIONS = 1000;
+  static final int MAX_RECURSION  = 2;
   static final int MAX_FIELDS     = 10;
   static final int MAX_STRING_LEN = 100;
 
@@ -37,18 +38,18 @@ public class FuzzTests {
   @RepeatedTest(MAX_ITERATIONS)
   void testRandomBean(final RepetitionInfo test) throws Exception {
     final Random random = new Random(test.getCurrentRepetition());
-    final Object bean = newRandomBean(random);
+    final Object bean = newRandomBean(random, 0);
     assertEquals(bean, Borsh.deserialize(Borsh.serialize(bean), bean.getClass()));
   }
 
-  private Object newRandomBean(final Random random) throws Exception {
+  private Object newRandomBean(final Random random, final int level) throws Exception {
     final BeanGenerator beanGenerator = new BeanGenerator();
     beanGenerator.setSuperclass(Bean.class);
     final int fieldCount = random.nextInt(MAX_FIELDS);
     final Object[] fieldValues = new Object[fieldCount];
     for (int i = 0; i < fieldCount; i++) {
       final String fieldName = String.format("field%d", i);
-      fieldValues[i] = newRandomValue(random);
+      fieldValues[i] = newRandomValue(random, level);
       beanGenerator.addProperty(fieldName, fieldValues[i].getClass());
     }
     final Object bean = beanGenerator.create();
@@ -56,21 +57,22 @@ public class FuzzTests {
       final String setterName = String.format("setField%d", i);
       bean.getClass().getMethod(setterName, fieldValues[i].getClass()).invoke(bean, fieldValues[i]);
     }
-    System.err.println(bean.toString());
+    //System.err.println(bean.toString());  // DEBUG
     return bean;
   }
 
-  private Object newRandomValue(final Random random) {
-    switch (Math.abs(random.nextInt()) % 9) {
-      case 0: return random.nextBoolean();
-      case 1: return (byte)random.nextInt(Byte.MAX_VALUE);
-      case 2: return (short)random.nextInt(Short.MAX_VALUE);
-      case 3: return random.nextInt();
-      case 4: return random.nextLong();
-      case 5: return BigInteger.valueOf(random.nextLong()).abs();
-      case 6: return random.nextFloat();
-      case 7: return random.nextDouble();
-      case 8:
+  private Object newRandomValue(final Random random, final int level) throws Exception {
+    switch (Math.abs(random.nextInt()) % 10) {
+      case 0: if (level < MAX_RECURSION) return newRandomBean(random, level + 1); else {/* fallthrough */}
+      case 1: return random.nextBoolean();
+      case 2: return (byte)random.nextInt(Byte.MAX_VALUE);
+      case 3: return (short)random.nextInt(Short.MAX_VALUE);
+      case 4: return random.nextInt();
+      case 5: return random.nextLong();
+      case 6: return BigInteger.valueOf(random.nextLong()).abs();
+      case 7: return random.nextFloat();
+      case 8: return random.nextDouble();
+      case 9:
         return random.ints('a', 'z' + 1)
           .limit(random.nextInt(MAX_STRING_LEN))
           .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
