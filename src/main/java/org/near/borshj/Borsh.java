@@ -5,9 +5,11 @@ package org.near.borshj;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Optional;
 
 public interface Borsh {
@@ -21,5 +23,11 @@ public interface Borsh {
 
   public static @NonNull <T> T deserialize(final @NonNull BorshBuffer buffer, final @NonNull Class klass) {
     return buffer.read(requireNonNull(klass));
+  }
+
+  public static boolean isSerializable(final @Nullable Class klass) {
+    if (klass == null) return false;
+    return Arrays.stream(klass.getInterfaces()).anyMatch(iface -> iface == Borsh.class) ||
+      isSerializable(klass.getSuperclass());
   }
 }
