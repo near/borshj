@@ -2,11 +2,24 @@
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.near.borshj.Borsh;
 
 public class BorshTests {
+  @Test
+  void roundtripPoint2Df() {
+    final Point2Df point = new Point2Df(123, 456);
+    assertEquals(point, Borsh.deserialize(Borsh.serialize(point), Point2Df.class));
+  }
+
+  @Test
+  void roundtripRect2Df() {
+    final Point2Df topLeft = new Point2Df(-123, -456);
+    final Point2Df bottomRight = new Point2Df(123, 456);
+    final Rect2Df rect = new Rect2Df(topLeft, bottomRight);
+    assertEquals(rect, Borsh.deserialize(Borsh.serialize(rect), Rect2Df.class));
+  }
+
   static public class Point2Df implements Borsh {
     private float x;
     private float y;
@@ -53,25 +66,5 @@ public class BorshTests {
       final Rect2Df other = (Rect2Df)object;
       return this.topLeft.equals(other.topLeft) && this.bottomRight.equals(other.bottomRight);
     }
-  }
-
-  @Test
-  void roundtripPoint2Df() {
-    final Point2Df point = new Point2Df(123, 456);
-    assertEquals(point, Borsh.deserialize(Borsh.serialize(point), Point2Df.class));
-  }
-
-  @Test
-  void roundtripRect2Df() {
-    final Point2Df topLeft = new Point2Df(-123, -456);
-    final Point2Df bottomRight = new Point2Df(123, 456);
-    final Rect2Df rect = new Rect2Df(topLeft, bottomRight);
-    assertEquals(rect, Borsh.deserialize(Borsh.serialize(rect), Rect2Df.class));
-  }
-
-  @Test
-  void writeOptional() {
-    assertArrayEquals(new byte[]{0}, Borsh.serialize(Optional.empty()));
-    assertArrayEquals(new byte[]{1, 42, 0, 0, 0}, Borsh.serialize(Optional.of(42)));
   }
 }

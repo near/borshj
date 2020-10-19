@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.near.borshj.BorshBuffer;
@@ -90,6 +91,12 @@ public class BorshBufferTests {
   void readBoolean() {
     assertEquals(false, BorshBuffer.wrap(new byte[]{0}).readBoolean());
     assertEquals(true, BorshBuffer.wrap(new byte[]{1}).readBoolean());
+  }
+
+  @Test
+  void readOptional() {
+    assertEquals(Optional.empty(), BorshBuffer.wrap(new byte[]{0}).readOptional());
+    assertEquals(Optional.of(42), BorshBuffer.wrap(new byte[]{1, 42, 0, 0, 0}).readOptional(Integer.class));
   }
 
   @Test
@@ -181,6 +188,12 @@ public class BorshBufferTests {
   void writeBoolean() {
     assertArrayEquals(new byte[] {0}, buffer.reset().writeBoolean(false).toByteArray());
     assertArrayEquals(new byte[] {1}, buffer.reset().writeBoolean(true).toByteArray());
+  }
+
+  @Test
+  void writeOptional() {
+    assertArrayEquals(new byte[]{0}, buffer.reset().writeOptional(Optional.empty()).toByteArray());
+    assertArrayEquals(new byte[]{1, 42, 0, 0, 0}, buffer.reset().writeOptional(Optional.of(42)).toByteArray());
   }
 
   @Test
