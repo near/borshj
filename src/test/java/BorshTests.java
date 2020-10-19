@@ -8,8 +8,8 @@ import org.near.borshj.Borsh;
 
 public class BorshTests {
   static public class Point2Df implements Borsh {
-    public float x;
-    public float y;
+    private float x;
+    private float y;
 
     public Point2Df() {}
 
@@ -32,8 +32,8 @@ public class BorshTests {
   }
 
   static public class Rect2Df implements Borsh {
-    public Point2Df topLeft;
-    public Point2Df bottomRight;
+    private Point2Df topLeft;
+    private Point2Df bottomRight;
 
     public Rect2Df() {}
 

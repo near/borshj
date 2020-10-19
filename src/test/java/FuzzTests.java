@@ -37,6 +37,7 @@ public class FuzzTests {
       if (object == null || object.getClass() != this.getClass()) return false;
       try {
         for (final Field field : this.getClass().getDeclaredFields()) {
+          field.setAccessible(true);
           if (!field.get(this).equals(field.get(object))) {
             return false;
           }

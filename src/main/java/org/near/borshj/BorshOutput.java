@@ -53,6 +53,7 @@ public interface BorshOutput<Self> {
   default public @NonNull Self writePOJO(final @NonNull Object object) {
     try {
       for (final Field field : object.getClass().getDeclaredFields()) {
+        field.setAccessible(true);
         this.write(field.get(object));
       }
     }

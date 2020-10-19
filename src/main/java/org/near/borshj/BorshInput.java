@@ -52,6 +52,7 @@ public interface BorshInput {
     try {
       final Object object = klass.getConstructor().newInstance();
       for (final Field field : klass.getDeclaredFields()) {
+        field.setAccessible(true);
         final Class fieldClass = field.getType();
         if (fieldClass == Optional.class) {
           final Type fieldType = field.getGenericType();
