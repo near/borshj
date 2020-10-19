@@ -73,13 +73,10 @@ public class BorshBufferTests {
   void readFixedArray() {
     final byte[] input = new byte[]{1, 2, 3, 4, 5};
     buffer = BorshBuffer.wrap(input);
-    assertEquals(0, buffer.readFixedArray(0).length);
-    buffer.reset();
-    assertEquals(1, buffer.readFixedArray(1).length);
-    buffer.reset();
-    assertEquals(5, buffer.readFixedArray(5).length);
-    buffer.reset();
-    assertArrayEquals(input, buffer.readFixedArray(5));
+    assertEquals(0, buffer.reset().readFixedArray(0).length);
+    assertEquals(1, buffer.reset().readFixedArray(1).length);
+    assertEquals(5, buffer.reset().readFixedArray(5).length);
+    assertArrayEquals(input, buffer.reset().readFixedArray(5));
   }
 
   @Test
@@ -87,6 +84,12 @@ public class BorshBufferTests {
     final byte[] input = new byte[]{3, 0, 0, 0, 1, 0, 2, 0, 3, 0};
     buffer = BorshBuffer.wrap(input);
     assertArrayEquals(new Short[]{1, 2, 3}, buffer.readArray(Short.class));
+  }
+
+  @Test
+  void readBoolean() {
+    assertEquals(false, BorshBuffer.wrap(new byte[]{0}).readBoolean());
+    assertEquals(true, BorshBuffer.wrap(new byte[]{1}).readBoolean());
   }
 
   @Test
@@ -172,6 +175,12 @@ public class BorshBufferTests {
     final byte[] expected = new byte[]{3, 0, 0, 0, 1, 0, 2, 0, 3, 0};
     final byte[] actual = buffer.toByteArray();
     assertArrayEquals(expected, actual);
+  }
+
+  @Test
+  void writeBoolean() {
+    assertArrayEquals(new byte[] {0}, buffer.reset().writeBoolean(false).toByteArray());
+    assertArrayEquals(new byte[] {1}, buffer.reset().writeBoolean(true).toByteArray());
   }
 
   @Test

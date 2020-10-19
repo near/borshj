@@ -38,6 +38,9 @@ public interface BorshInput {
     else if (klass == String.class) {
       return (T)this.readString();
     }
+    else if (klass == Boolean.class) {
+      return (T)Boolean.valueOf(this.readBoolean());
+    }
     else if (klass == Optional.class) {
       return (T)this.readOptional();
     }
@@ -142,6 +145,10 @@ public interface BorshInput {
       elements[i] = this.read(klass);
     }
     return elements;
+  }
+
+  default public boolean readBoolean() {
+    return (this.readU8() != 0);
   }
 
   default public <T> @NonNull Optional<T> readOptional() {

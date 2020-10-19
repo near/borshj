@@ -41,6 +41,9 @@ public interface BorshOutput<Self> {
     else if (object instanceof List) {
       return (Self)this.writeArray((List)object);
     }
+    else if (object instanceof Boolean) {
+      return (Self)this.writeBoolean((Boolean)object);
+    }
     else if (object instanceof Optional) {
       return (Self)this.writeOptional((Optional)object);
     }
@@ -140,6 +143,10 @@ public interface BorshOutput<Self> {
       this.write(element);
     }
     return (Self)this;
+  }
+
+  default public @NonNull <T> Self writeBoolean(final boolean value) {
+    return this.writeU8(value ? 1 : 0);
   }
 
   default public @NonNull <T> Self writeOptional(final @NonNull Optional<T> optional) {
