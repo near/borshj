@@ -37,7 +37,7 @@ In the meantime, if you wish to try out BorshJ, you will need to build the JAR
 file from source code yourself:
 
 ```bash
-git clone https://github.com/artob/borshj.git
+git clone https://github.com/near/borshj.git
 
 cd borshj
 
@@ -123,9 +123,9 @@ because instances of the class will be instantiated through Java's
 [POJO]:           https://en.wikipedia.org/wiki/Plain_old_Java_object
 
 [`BigInteger`]:   https://docs.oracle.com/javase/10/docs/api/java/math/BigInteger.html
-[`BorshBuffer`]:  https://github.com/artob/borshj/blob/master/src/main/java/org/near/borshj/BorshBuffer.java
-[`BorshReader`]:  https://github.com/artob/borshj/blob/master/src/main/java/org/near/borshj/BorshReader.java
-[`BorshWriter`]:  https://github.com/artob/borshj/blob/master/src/main/java/org/near/borshj/BorshWriter.java
+[`BorshBuffer`]:  https://github.com/near/borshj/blob/master/src/main/java/org/near/borshj/BorshBuffer.java
+[`BorshReader`]:  https://github.com/near/borshj/blob/master/src/main/java/org/near/borshj/BorshReader.java
+[`BorshWriter`]:  https://github.com/near/borshj/blob/master/src/main/java/org/near/borshj/BorshWriter.java
 [`ByteBuffer`]:   https://docs.oracle.com/javase/10/docs/api/java/nio/ByteBuffer.html
 [`InputStream`]:  https://docs.oracle.com/javase/10/docs/api/java/io/InputStream.html
 [`Map`]:          https://docs.oracle.com/javase/10/docs/api/java/util/Map.html
