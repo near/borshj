@@ -2,11 +2,13 @@
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.near.borshj.BorshBuffer;
 
 public class BorshBufferTests {
@@ -194,6 +196,32 @@ public class BorshBufferTests {
   void writeOptional() {
     assertArrayEquals(new byte[]{0}, buffer.reset().writeOptional(Optional.empty()).toByteArray());
     assertArrayEquals(new byte[]{1, 42, 0, 0, 0}, buffer.reset().writeOptional(Optional.of(42)).toByteArray());
+  }
+
+  @Test
+  void writePOJOWithByteArrayA() {
+    BorshTests.PojoTestEntity pojo = new BorshTests.PojoTestEntity(
+        new byte[]{1, 2, 3, 4, 5},
+        "Borsh"
+    );
+    final byte[] expected = new byte[]{
+        1, 2, 3, 4, 5,
+        5, 0, 0, 0, 'B', 'o', 'r', 's', 'h'
+    };
+    final byte[] actual = buffer.writePOJO(pojo).toByteArray();
+    assertArrayEquals(expected, actual);
+  }
+
+  @Test
+  void writePOJOWithUnknownType() {
+    BorshTests.PojoTestWrongTypeEntity pojo = new BorshTests.PojoTestWrongTypeEntity(
+       BigDecimal.ONE
+    );
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> buffer.writePOJO(pojo).toByteArray()
+    );
   }
 
   @Test
