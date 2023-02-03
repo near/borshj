@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BorshOutput<Self> {
-  default public @NonNull Self write(final @NonNull Object object) {
+  @NonNull default Self write(final @NonNull Object object) {
     requireNonNull(object);
     if (object instanceof Byte) {
       return this.writeU8((byte)object);
@@ -38,6 +38,9 @@ public interface BorshOutput<Self> {
     else if (object instanceof String) {
       return this.writeString((String)object);
     }
+    else if (object instanceof byte[]) {
+      return this.writeFixedArray((byte[]) object);
+    }
     else if (object instanceof List) {
       return (Self)this.writeArray((List)object);
     }
@@ -50,7 +53,8 @@ public interface BorshOutput<Self> {
     else if (object instanceof Borsh) {
       return this.writePOJO(object);
     }
-    throw new IllegalArgumentException();
+    String errorMessage = String.format("Unsupported type for write %s", object.getClass().toString());
+    throw new IllegalArgumentException(errorMessage);
   }
 
   default public @NonNull Self writePOJO(final @NonNull Object object) {
